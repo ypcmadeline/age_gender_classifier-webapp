@@ -1,15 +1,12 @@
 import torch
 import torch.nn as nn
 import cv2
-from transformers import AutoImageProcessor, ViTMAEModel
+from transformers import ViTMAEModel
 import torchvision.transforms as transforms
 
 
 
 class MultiTaskModel(nn.Module):
-    """
-    Creates a MTL model with the encoder from "arch" and with dropout multiplier ps.
-    """
     def __init__(self):
         super().__init__()
         self.backbone = ViTMAEModel.from_pretrained("facebook/vit-mae-base")
@@ -34,8 +31,7 @@ class MultiTaskModel(nn.Module):
 
         return [age_output, gender_output]
 
-# model = MultiTaskModel()
-# model.load_state_dict(torch.load('model.pt', map_location=torch.device('cpu')))
+
 class Predictor():
     def __init__(self):
         self.model = torch.load('model.pt', map_location=torch.device('cpu'))
@@ -46,7 +42,6 @@ class Predictor():
             ])
 
     def predict(self, img):
-        img = cv2.imread('data/9_1_0_20170103212649164.jpg')
         img = self.test_transform(img)
         gender_list = ['Male', 'Female']
 
@@ -55,8 +50,4 @@ class Predictor():
         age = int(out[0].item())
 
         gender = out[1].detach().numpy().argmax()
-        print(age, gender)
         return [age, gender_list[gender]]
-
-# p = Predictor()
-# p.predict('img')
